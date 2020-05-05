@@ -71,7 +71,6 @@ class Calculations:
 
                 if self.settings.trajectory and steps >= steplimit:
 
-
                     if self.settings.heliocentric is False:
                         traj = np.array([so.x, so.y])
                         traj = traj - (self.settings.focus.x, self.settings.focus.y)
@@ -104,35 +103,21 @@ class Calculations:
         total_accel_vector = Vector()
         for so1 in self.universe:
             if so0 != so1:
-                # print "so1",so1.name,"so0",so0.name
                 zaehler = so1.pv - so0.pv
-                # print "zaehler:",zaehler.v
                 nenner = math.pow(zaehler.getnorm(), 3)
-                # print "nenner:",nenner
                 temp = zaehler / nenner
                 temp = temp * so1.mass
-                # if so0.name == "moon":
-                #    if so1.name == "earth":
-                #        print "fromearthtemp", temp.v
-                #    if so1.name == "sun":
-                #        print "fromsuntemp", temp.v
-                # print "temp",np.linalg.norm(temp.v)
                 total_accel_vector = total_accel_vector + temp
 
         # beschleunigungsvektor: a_neu = m * G
         total_accel_vector = total_accel_vector * constants.G
         # geschwindigkeitsvektor: v_neu = a_neu * dt
-        testT = 0.0006
-        # total_velocity_vector = total_accel_vector * testT  # (self.deltaT*self.time_scale)
         total_velocity_vector = total_accel_vector * (self.deltaT * self.settings.time_scale)
 
         # Addiere den alten und den neuen Geschwindigkeitsvektor: temp = v_alt + v_neu
         temp = so0.velocityVector + total_velocity_vector
         # if so0.name=="earth":
-        #    print so0.velocityVector.v,np.linalg.norm(total_velocity_vector.v)
         so0.vVnew = temp
-        # so0.xnew = so0.x + (so0.vVnew.x() * testT)  # (self.deltaT*self.time_scale))
-        # so0.ynew = so0.y + (so0.vVnew.y() * testT)  # (self.deltaT*self.time_scale))
 
         so0.xnew = so0.x + (so0.vVnew.x() * (self.deltaT * self.settings.time_scale))
         so0.ynew = so0.y + (so0.vVnew.y() * (self.deltaT * self.settings.time_scale))

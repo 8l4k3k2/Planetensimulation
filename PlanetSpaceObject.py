@@ -31,11 +31,9 @@ class SpaceObject:
 
         self.trajectory = []# np.array([])#([[self.x,self.y]])
         self.trajectory2 = []
-        # self.screen = Window.screen
-        # self.scaling = Window.scaling
 
         # proportion scaling
         # self.prop=3.0 / math.pow(10, 9)
         self.prop = 1.0 / math.pow(10, 9) # value to scale down the real values to a format that can be projected on a canvas in pixel
-        # if self.name=="moon":
+        #if self.name=="moon":
         #    self.prop=3.0 / math.pow(10, 6)
