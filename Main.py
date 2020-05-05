@@ -41,11 +41,25 @@ class Canvas(QtWidgets.QWidget):
         self.setGeometry(300, 300, 1200, 1200)
         self.setWindowTitle("PlanetSimulation")
 
+        self.universe = universe
+        """
         self.b_trajectory = QtWidgets.QPushButton("Trajectory", self)
         self.b_trajectory.clicked.connect(self.set_trajetory)
         self.b_trajectory.move(470, 10)
-        self.universe = universe
+        """
+        self.cb_trajectory = QtWidgets.QCheckBox("Trajectory", self)
+        self.cb_trajectory.setChecked(settings.trajectory)
+        self.cb_trajectory.stateChanged.connect(self.set_trajetory)
+        self.cb_trajectory.move(470, 12)
 
+        # planetozentisch
+        self.cb_geo = QtWidgets.QCheckBox("Heliocentric", self)
+        self.cb_geo.move(550, 12)
+        self.cb_geo.setChecked(settings.heliocentric)
+        self.cb_geo.stateChanged.connect(self.heliocentric_changed)
+        self.cb_geo.setEnabled(False)
+
+        #showing fps
         self.l = QtWidgets.QLabel("0 fps", self)
         self.l.setGeometry(10, 10, 150, 36)
         self.lastTime = time.time()
@@ -53,7 +67,7 @@ class Canvas(QtWidgets.QWidget):
 
         # Focus
         self.l_focus = QtWidgets.QLabel("Focus:", self)
-        self.l_focus.setGeometry(620, 10,750,36)
+        self.l_focus.setGeometry(650, 10,750,20)
         self.cobo_focus = QtWidgets.QComboBox(self)
         self.cobo_focus.addItem(settings.standart_focus.name)
         for p in self.universe:
@@ -63,21 +77,19 @@ class Canvas(QtWidgets.QWidget):
         cbtexts = [self.cobo_focus.itemText(i) for i in range(self.cobo_focus.count())]
         self.cobo_focus.setCurrentIndex(cbtexts.index(settings.focus.name))
 
-        # planetozentisch
-        self.cb_geo = QtWidgets.QCheckBox("Geozentisch", self)
-        self.cb_geo.move(850, 10)
-        self.cb_geo.setChecked(settings.planetozentrisch)
-        self.cb_geo.stateChanged.connect(self.planetozentisch_changed)
+
 
         self.runtime = True
         t = threading.Thread(target=self.myupdate)
         t.start()
 
-    def planetozentisch_changed(self, i):
+    def heliocentric_changed(self, i):
         if i == 2:
-            settings.planetozentrisch = True
+            settings.heliocentric = True
         else:
-            settings.planetozentrisch = False
+            settings.heliocentric = False
+
+        # deletes trajectories for previous centrism
         for planet in self.universe:
             planet.trajectory = []
             planet.trajectory2 = []
@@ -93,12 +105,14 @@ class Canvas(QtWidgets.QWidget):
 
     def set_trajetory(self):
         if settings.trajectory:
+            self.cb_geo.setEnabled(False)
             settings.trajectory = False
             for planet in self.universe:
                 planet.trajectory = []
                 planet.trajectory2 = []  # np.array([])
         else:
             settings.trajectory = True
+            self.cb_geo.setEnabled(True)
 
     def myupdate(self):
         while self.runtime:
@@ -132,7 +146,8 @@ class Canvas(QtWidgets.QWidget):
             # x = (planet.x - settings.focus.x) * settings.proportion_scaling + settings.scaling[0]-planet.radius/2
             # y = (planet.y - settings.focus.y) * settings.proportion_scaling + settings.scaling[1]-planet.radius/2
             #print(planet.drawx, planet.drawy, planet.radius, planet.radius)
-
+            print(""), #no idea why it crashes when its not there
+            #print(type(planet.drawx), type(planet.drawy), type(planet.radius), type(planet.radius))
             self.qp.drawEllipse(planet.drawx, planet.drawy, planet.radius, planet.radius)
 
             # Trajectory
@@ -144,6 +159,7 @@ class Canvas(QtWidgets.QWidget):
                 try:
                     self.qp.drawPolyline(*planet.trajectory2)
                 except TypeError:
+                    print("TypeError")
                     pass
 
         # self.qp.setBrush(QtGui.QColor(255, 0, 0))
@@ -159,7 +175,7 @@ class Settings:
         self.scaling = (int(self.width / 2), int(self.height / 2))
         self.standart_focus = SpaceObject("standart", 0, 0, None, None, None, None)
         self.focus = self.standart_focus
-        self.planetozentrisch = True  # true zeigt 'falsche' trajektorien
+        self.heliocentric = False  # False zeigt 'falsche' trajektorien
         self.trajectory = False  # zeigt trajektorie an oder nicht
         self.traj_length = 1000
 
@@ -178,8 +194,8 @@ earth = SpaceObject("earth", 152.0 * math.pow(10, 9), 0, 5.974 * math.pow(10, 24
                     (0, 0, 255))
 universe.append(earth)
 
-# moon = SpaceObject("moon",x=152.0 * math.pow(10, 9)+405500,y=0,mass=7.349*math.pow(10,22),velocityVector=Vector(0,1,964),radius=5,colour=(225,225,0),Window=w)
-# universe.append(moon)
+#moon = SpaceObject("moon",x=152.0 * math.pow(10, 9)+405500,y=0,mass=7.349*math.pow(10,22),velocityVector=Vector(0,1,964),radius=5,colour=(225,225,0))
+#universe.append(moon)
 venus = SpaceObject("venus", x=108.9 * math.pow(10, 9), y=0, mass=4.869 * math.pow(10, 24),
                     velocityVector=Vector(0, 1, 35020), radius=15, colour=(255, 0, 255))
 universe.append(venus)

@@ -1,24 +1,31 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from __future__ import division
-
+
+
 
 __author__ = "Jonathan Grimm"
 __date__ = "12.06.18"
 __IDE__ = "PyCharm Community Edition"
 
 import scipy.constants as constants
-
+
+
 import threading
-
+
+
 import time
-
+
+
 from PlanetVector import Vector
-
+
+
 import math
-
+
+
 import numpy as np
-
+
+
 from PyQt5 import QtCore
 
 
@@ -65,7 +72,7 @@ class Calculations:
                 if self.settings.trajectory and steps >= steplimit:
 
 
-                    if self.settings.planetozentrisch:
+                    if self.settings.heliocentric is False:
                         traj = np.array([so.x, so.y])
                         traj = traj - (self.settings.focus.x, self.settings.focus.y)
                         traj = traj * self.settings.proportion_scaling + self.settings.scaling[0]
@@ -76,7 +83,7 @@ class Calculations:
 
                     so.trajectory.append(QtCore.QPointF(*traj))
                     so.trajectory2.append(QtCore.QPointF(*traj))
-                    if self.settings.planetozentrisch is False:
+                    if self.settings.heliocentric:
                         so.trajectory2=[]
                         for p in so.trajectory:
                             so.trajectory2.append(QtCore.QPointF(p.x()+(self.universe[0].x-self.settings.focus.x)

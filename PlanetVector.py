@@ -12,7 +12,6 @@ import numpy as np
 class Vector:
     def __init__(self, x=0.0, y=0.0, norm=None, v=None):
         """
-
         :param x: float: x coordinate of directional vector
         :param y: float: y coordinate of directional vector
         :param norm: float: length of the vector

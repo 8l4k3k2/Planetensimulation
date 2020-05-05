@@ -1,0 +1,12 @@
+This is a simulation of the Planet constellation Mars, Earth and Venus orbiting around the sun by applying the Newton's law of universal gravitation.
+The values(weight, position, etc.) by how the simulation is calculated are real. The shown simulation is scaled(sped up
+-otherwise it would take a real year for the earth to orbit one time around the sun and the displayed radii are custom set otherwise the other planets would be smaller than one pixel compared to the sun)
+The focus of the simulation can be selected in the drop down menu and the trajectory of the Space objects can be toggled by clicking on the checkbox named "Trajectorie".
+Per default the trajectories shown are the trajectories from the perspective of the selected focus. To show the trajectories of the planets from the perspective of the sun select the "Heliocentric" checkbox.
+The frames per seconds drawn are shown in the top left corner.
+
+This is a rough demonstration to show the visual effect of gravitational laws of physics.
+This was initially done as a group project of three people(including me) during vocational school made in Java
+and was later redone by myself from scratch in Python.
+
+since updating to pyqt5 the application seem to crash randomly
