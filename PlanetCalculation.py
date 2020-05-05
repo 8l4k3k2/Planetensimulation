@@ -9,23 +9,11 @@ __date__ = "12.06.18"
 __IDE__ = "PyCharm Community Edition"
 
 import scipy.constants as constants
-
-
 import threading
-
-
 import time
-
-
 from PlanetVector import Vector
-
-
 import math
-
-
 import numpy as np
-
-
 from PyQt5 import QtCore
 
 

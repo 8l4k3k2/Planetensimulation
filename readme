@@ -10,3 +10,8 @@ This was initially done as a group project of three people(including me) during 
 and was later redone by myself from scratch in Python.
 
 since updating to pyqt5 the application seem to crash randomly
+
+Prerequisites:
+numpy
+scipy
+PyQt5
