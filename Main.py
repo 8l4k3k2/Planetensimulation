@@ -12,7 +12,7 @@ import math
 from PlanetSpaceObject import SpaceObject
 from PlanetVector import Vector
 from PlanetCalculation import Calculations
-from PyQt5 import QtGui, QtWidgets
+from PyQt5 import QtGui, QtWidgets,QtCore
 import time
 import threading
 import numpy as np
@@ -24,15 +24,15 @@ class MainWindow(QtWidgets.QMainWindow):
         super(MainWindow, self).__init__()
         self.canvas = Canvas(universe)
         self.setCentralWidget(self.canvas)
+        self.setWindowTitle("Planetensimulation")
+        self.setGeometry(0, 0, 1300, 1300)
         self.show()
-        self.setGeometry(0, 0, 1400, 1400)
 
         self.calc = Calculations(universe, settings)
 
     def closeEvent(self, event):
         self.canvas.runtime = False
         self.calc.runtime = False
-
 
 class Canvas(QtWidgets.QWidget):
     def __init__(self, universe):
@@ -42,11 +42,6 @@ class Canvas(QtWidgets.QWidget):
         self.setWindowTitle("PlanetSimulation")
 
         self.universe = universe
-        """
-        self.b_trajectory = QtWidgets.QPushButton("Trajectory", self)
-        self.b_trajectory.clicked.connect(self.set_trajetory)
-        self.b_trajectory.move(470, 10)
-        """
         self.cb_trajectory = QtWidgets.QCheckBox("Trajectory", self)
         self.cb_trajectory.setChecked(settings.trajectory)
         self.cb_trajectory.stateChanged.connect(self.set_trajetory)
@@ -76,7 +71,6 @@ class Canvas(QtWidgets.QWidget):
         self.cobo_focus.currentIndexChanged.connect(self.focus_chanege)
         cbtexts = [self.cobo_focus.itemText(i) for i in range(self.cobo_focus.count())]
         self.cobo_focus.setCurrentIndex(cbtexts.index(settings.focus.name))
-
 
 
         self.runtime = True
@@ -175,7 +169,7 @@ class Settings:
         self.scaling = (int(self.width / 2), int(self.height / 2))
         self.standart_focus = SpaceObject("standart", 0, 0, None, None, None, None)
         self.focus = self.standart_focus
-        self.heliocentric = False  # False zeigt 'falsche' trajektorien
+        self.heliocentric = False  # True zeigt heliozentrische Trajektorie
         self.trajectory = False  # zeigt trajektorie an oder nicht
         self.traj_length = 1000
 
@@ -207,6 +201,7 @@ universe.append(mars)
 settings.focus = universe[1]
 
 if __name__ == '__main__':
-    app = QtWidgets.QApplication(sys.argv)
+    app = QtWidgets.QApplication([])
+    #app = QtWidgets.QApplication(sys.argv)
     win = MainWindow(universe)
     sys.exit(app.exec_())

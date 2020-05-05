@@ -11,7 +11,6 @@ import math
 import numpy as np
 
 
-
 class SpaceObject:
     def __init__(self, name, x, y, mass, velocityVector, radius, colour):
         self.name = name
