@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
 
-
-
 __author__ = "Jonathan Grimm"
 __date__ = "created: 12.06.18 converted to 3.8: 05.2020"
 __IDE__ = "PyCharm Community Edition"
@@ -12,11 +10,13 @@ import math
 from PlanetSpaceObject import SpaceObject
 from PlanetVector import Vector
 from PlanetCalculation import Calculations
-from PyQt5 import QtGui, QtWidgets,QtCore
+from PyQt5 import QtGui, QtWidgets
+from PyQt5.QtCore import QTime, QTimer
 import time
 import threading
 import numpy as np
 import sys
+import statistics
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -33,6 +33,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def closeEvent(self, event):
         self.canvas.runtime = False
         self.calc.runtime = False
+
 
 class Canvas(QtWidgets.QWidget):
     def __init__(self, universe):
@@ -55,23 +56,28 @@ class Canvas(QtWidgets.QWidget):
         self.cb_geo.setEnabled(False)
 
         #showing fps
-        self.l = QtWidgets.QLabel("0 fps", self)
+        self.l = QtWidgets.QLabel("fps: 0", self)
         self.l.setGeometry(10, 10, 150, 36)
+
         self.lastTime = time.time()
-        self.fps = None
+        self.fpslist=[]
+        self.fpsTimer = QTimer(self)
+        self.fpsTimer.timeout.connect(self.updatefps)
+        self.fpsTimer.start(200)
 
         # Focus
         self.l_focus = QtWidgets.QLabel("Focus:", self)
         self.l_focus.setGeometry(650, 10,750,20)
         self.cobo_focus = QtWidgets.QComboBox(self)
         self.cobo_focus.addItem(settings.standart_focus.name)
+
+        #adding every space object to the focus combobox
         for p in self.universe:
             self.cobo_focus.addItem(p.name)
         self.cobo_focus.move(700, 10)
         self.cobo_focus.currentIndexChanged.connect(self.focus_chanege)
         cbtexts = [self.cobo_focus.itemText(i) for i in range(self.cobo_focus.count())]
         self.cobo_focus.setCurrentIndex(cbtexts.index(settings.focus.name))
-
 
         self.runtime = True
         t = threading.Thread(target=self.myupdate)
@@ -109,40 +115,41 @@ class Canvas(QtWidgets.QWidget):
             self.cb_geo.setEnabled(True)
 
     def myupdate(self):
+        """
+        updates the canvas
+        """
         while self.runtime:
             self.update()
-            # QtTest.QTest.qWait(10)
-            # QtGui.QApplication.processEvents()
             time.sleep(0.001)
-
             # QtGui.QApplication.processEvents()
+
+    def updatefps(self):
+        """
+        calculates fps and updates fps label
+        """
+        self.l.setText("fps: "+str(int(1 / statistics.mean(self.fpslist))))
+        self.fpslist=[]
 
     def paintEvent(self, e):
+        """
+        draws the Space Objects and trajectories on the canvas
+        """
         global settings
+
+        # adding data for fps calculation
         now = time.time()
         dt = now - self.lastTime
+        self.fpslist.append(dt)
         self.lastTime = now
-        if self.fps is None:
-            self.fps = 1.0 / dt
-        else:
-            s = np.clip(dt * 3., 0, 1)
-            self.fps = self.fps * (1 - s) + (1.0 / dt) * s
-        self.l.setText(str(self.fps))
 
         self.qp.begin(self)
-
         self.qp.drawRect(0, 0, 1200, 1200)
 
         for planet in self.universe:
             r, g, b = planet.colour
             self.qp.setBrush(QtGui.QColor(r, g, b))
             self.qp.setPen(0)
-            # x = (planet.x - settings.focus.x) * settings.proportion_scaling + settings.scaling[0]-planet.radius/2
-            # y = (planet.y - settings.focus.y) * settings.proportion_scaling + settings.scaling[1]-planet.radius/2
-            #print(planet.drawx, planet.drawy, planet.radius, planet.radius)
-            print(""), #no idea why it crashes when its not there
-            #print(type(planet.drawx), type(planet.drawy), type(planet.radius), type(planet.radius))
-            self.qp.drawEllipse(planet.drawx, planet.drawy, planet.radius, planet.radius)
+            self.qp.drawEllipse(int(planet.drawx), int(planet.drawy), planet.radius, planet.radius)
 
             # Trajectory
 
@@ -156,10 +163,6 @@ class Canvas(QtWidgets.QWidget):
                     print("TypeError")
                     pass
 
-        # self.qp.setBrush(QtGui.QColor(255, 0, 0))
-        # for i in self.universe:
-        #    self.qp.drawEllipse(400 + i.x, 400 + i.y, i.r, i.r)
-
         self.qp.end()
 
 
@@ -167,7 +170,7 @@ class Settings:
     def __init__(self):
         (self.width, self.height) = (1200, 1200)
         self.scaling = (int(self.width / 2), int(self.height / 2))
-        self.standart_focus = SpaceObject("standart", 0, 0, None, None, None, None)
+        self.standart_focus = SpaceObject("standart", 0, 0, None, None, None, None) # standart focus around the center of the canvas
         self.focus = self.standart_focus
         self.heliocentric = False  # True zeigt heliozentrische Trajektorie
         self.trajectory = False  # zeigt trajektorie an oder nicht
@@ -181,6 +184,7 @@ class Settings:
 
 settings = Settings()
 universe = []
+#creating Space objects
 sun = SpaceObject("sun", 0, 0, 1.984 * math.pow(10, 30), Vector(), 50, (225, 225, 0))
 universe.append(sun)
 
@@ -202,6 +206,5 @@ settings.focus = universe[1]
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication([])
-    #app = QtWidgets.QApplication(sys.argv)
     win = MainWindow(universe)
     sys.exit(app.exec_())
