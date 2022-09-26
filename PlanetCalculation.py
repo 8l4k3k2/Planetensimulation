@@ -9,16 +9,18 @@ __date__ = "12.06.18"
 __IDE__ = "PyCharm Community Edition"
 
 import scipy.constants as constants
-import threading
 import time
 from PlanetVector import Vector
 import math
 import numpy as np
 from PyQt5 import QtCore
+from PyQt5.QtCore import QObject
 
 
-class Calculations:
-    def __init__(self, universe, settings):
+class Calculations(QObject):
+
+    def __init__(self, universe, settings,parent=None):
+        QObject.__init__(self, parent=parent)
         self.universe = universe
         self.runtime = True
         self.time1 = 0
@@ -27,13 +29,11 @@ class Calculations:
 
         self.settings = settings
 
-        t = threading.Thread(target=self.run)
-        t.start()
-
     def run(self):
         self.time1 = time.time()
         steps = 0
         while self.runtime:
+            time.sleep(0.00000000001)
             steps += 1
             steplimit = 10
             if steps > steplimit:

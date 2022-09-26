@@ -11,10 +11,8 @@ from PlanetSpaceObject import SpaceObject
 from PlanetVector import Vector
 from PlanetCalculation import Calculations
 from PyQt5 import QtGui, QtWidgets
-from PyQt5.QtCore import QTime, QTimer
+from PyQt5.QtCore import QTimer, QThread
 import time
-import threading
-import numpy as np
 import sys
 import statistics
 
@@ -29,6 +27,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.show()
 
         self.calc = Calculations(universe, settings)
+
+        self.calculationThread = QThread()
+        self.calc.moveToThread(self.calculationThread)
+        self.calculationThread.started.connect(self.calc.run)
+        self.calculationThread.start()
 
     def closeEvent(self, event):
         self.canvas.runtime = False
@@ -80,8 +83,11 @@ class Canvas(QtWidgets.QWidget):
         self.cobo_focus.setCurrentIndex(cbtexts.index(settings.focus.name))
 
         self.runtime = True
-        t = threading.Thread(target=self.myupdate)
-        t.start()
+
+        #selfupdate
+        self.updateTimer = QTimer()
+        self.updateTimer.timeout.connect(self.update)
+        self.updateTimer.start(7)
 
     def heliocentric_changed(self, i):
         if i == 2:
