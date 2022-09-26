@@ -185,7 +185,7 @@ class Settings:
         self.time_scale = 10000000  # wie schnell/langsam alles geht
         # self.time_scale = 31536000 #a year in seconds
 
-        self.proportion_scaling = 1.0 / math.pow(10, 9)  # proportion scaling
+        self.proportion_scaling = 1.0 / (math.pow(10, 9)*2 ) # proportion scaling
 
 
 settings = Settings()
@@ -207,6 +207,9 @@ universe.append(venus)
 mars = SpaceObject("mars", x=249 * math.pow(10, 9), y=0, mass=6.419 * math.pow(10, 23),
                    velocityVector=Vector(0, -1, 21970), radius=10, colour=(200, 0, 0))
 universe.append(mars)
+
+jupiter = SpaceObject("jupiter",x=817 * math.pow(10,9),y=0, mass=1.898 * math.pow(10,27),velocityVector=Vector(0,-1,13070),radius=30,colour=(210,180,140))
+universe.append(jupiter)
 
 settings.focus = universe[1]
 
